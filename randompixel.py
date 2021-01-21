@@ -1,24 +1,23 @@
 import numpy as np
 from PIL import Image
-#import cv2
 
 # Global vars
-dead_count = 0
+dead_count = 0 # used in boringCount
 rows = 800
 cols = 800
 
+# generates the random cell auto and saves it
 def genRandomCellAuto():
         global dead_count
+        
         live_color = np.random.randint(30,255,3)
-        #dead_color = np.random.randint(0,255,3)
-        #live_color = [255, 255, 255]
         imarray = genCellAuto(live_color, rows, cols)
-        imarray = np.array(imarray).astype('uint8') #convert to numpy array
+        imarray = np.array(imarray).astype('uint8') 
         
         while isBoring(imarray):
             print("pattern is boring, regenerating")
             dead_count = 0
-            imarray = genCellAuto(live_color, rows, cols) #code duplication :( 
+            imarray = genCellAuto(live_color, rows, cols) 
             imarray = np.array(imarray).astype('uint8') 
 
         im = Image.fromarray(imarray.astype('uint8')).convert('RGBA')
@@ -38,6 +37,7 @@ def randomColors(state):
 
     return state
 
+# will tell if a pattern is boring based on some arbitrary threshold
 def isBoring(state):
     rows = len(state)
     cols = len(state[0])
@@ -47,12 +47,13 @@ def isBoring(state):
     else:
         return False
 
+# initialize image and generate random rule using gen_rule
 def genCellAuto(live_color, rows, cols):
-    image_state = [[ live_color for j in range(0,cols)] for i in range(0,rows)]#np.zeros((50,50,3))
+    image_state = [[ live_color for j in range(0,cols)] for i in range(0,rows)]
 
     image_state[0][int(cols/2)] = [0, 0, 0]
 
-    image_state = gen_rule(image_state, live_color) #was originally cellStep(image_state)
+    image_state = gen_rule(image_state, live_color) 
 
     return image_state
     
@@ -67,7 +68,7 @@ def gen_rule(state, live_color) :
     
     random_rule = [live_color if np.random.randint(0,2) % 2 == 0 else [0,0,0] for i in range(0,8)]
     live_0 = live_color[0]
-    rule_arr = [[[[0,0,0] for col in range(2)]for row in range(2)] for x in range(2)] #4D array?!
+    rule_arr = [[[[0,0,0] for col in range(2)]for row in range(2)] for x in range(2)] 
 
     rule_arr[0][0][0] = random_rule[0] #4D array?!
     rule_arr[0][0][1] = random_rule[1]
@@ -92,7 +93,7 @@ def gen_rule(state, live_color) :
             # state[i][j] = arr[0][0][0] -> maps to 000 pattern
             # state[i][j] = arr[0][0][1] -> maps to 001 pattern, etc.
             
-            state[i][j] = rule_arr[left_cell][curr_cell][right_cell] #this works as intended and is noticeably faster :)
+            state[i][j] = rule_arr[left_cell][curr_cell][right_cell] 
             
             dead_count += int(state[i][j][0] / live_0) ^ 1 #add 1 if dead, else add 0
             
