@@ -2,7 +2,7 @@ import numpy as np
 from PIL import Image
 
 # global vars
-dead_count = 0 # used in boring_count
+dead_count = 0 # used in boring_count, probably can change to a non-global variable that is returned in 
 rows = 800
 cols = 800
 
@@ -21,7 +21,7 @@ def gen_random_cellauto(save_file):
 
 # generates 5 random cellautos, saves them into different files
 def gen_multiple_cellauto():
-    save_file = 'resultimg{}.png'
+    save_file = 'multipleresultimg{}.png'
 
     for i in range(0, 5):
         gen_random_cellauto(save_file.format(i))
@@ -55,54 +55,37 @@ def img_gen(live_color, rows, cols):
     image_state = np.array(image_state).astype('uint8')
 
     return image_state
+
+# generate random rule for gen_rule out of the 256 possible rule sets for an elementary ceullular automata. only one line but could change if generating randome rule becomes more complicated later
+def random_rule(live_color):
+    return [[[live_color if np.random.randint(0,2) % 2 == 0 else [0,0,0] for right in range(2)] for curr in range(2)] for left in range(2)]
     
-# generates a random rule, out of the 256 possible rule sets for an elementary ceullular automata
+# generates a random rule and creates cellauto img state 
 def gen_rule(state, live_color) :
     global dead_count
     dead_count = 0 # assume there are no dead cells in the beginning
     
-    random_rule = [live_color if np.random.randint(0,2) % 2 == 0 else [0,0,0] for i in range(0,8)]
-    live_0 = live_color[0]
-    rule_arr = [[[[0,0,0] for col in range(2)]for row in range(2)] for x in range(2)] 
-
-    rule_arr[0][0][0] = random_rule[0] # 4D array?!
-    rule_arr[0][0][1] = random_rule[1]
-    rule_arr[0][1][0] = random_rule[2]
-    rule_arr[0][1][1] = random_rule[3]
-    rule_arr[1][0][0] = random_rule[4]
-    rule_arr[1][0][1] = random_rule[5]
-    rule_arr[1][1][0] = random_rule[6]
-    rule_arr[1][1][1] = random_rule[7]
+    rule_arr = random_rule(live_color)
 
     # ignoring corner cases, skip first row since that's gen 0, come back to corner cases sometime
     for i in range (1, rows):
         for j in range(1, cols - 1):
-            left_cell = int(state[i - 1][j - 1][0] / live_0) # divide by live_0 so that these entries are either 0 or 1, basically tells whether cell is dead or not
-            curr_cell = int(state[i - 1][j][0] / live_0)
-            right_cell = int(state[i - 1][j + 1][0] / live_0)
+            left_cell = int(state[i - 1][j - 1][0] / live_color[0]) # divide by live_0 so that these entries are either 0 or 1, basically tells whether cell is dead or not
+            curr_cell = int(state[i - 1][j][0] / live_color[0])
+            right_cell = int(state[i - 1][j + 1][0] / live_color[0])
 
             # if confused, look at wolframalpha cellular automata
             # each of the 8 possibilities for left, curr, and right cells
             # state[i][j] = arr[left_cell][curr_cell][right_cell] will simply give the correct coloring..
-            # so idea is you build this array once, then much faster updates as opposed to this if statement
+            # so idea is you build this array once, then faster updates to the image state as opposed to if statements
             # state[i][j] = arr[0][0][0] -> maps to 000 pattern
             # state[i][j] = arr[0][0][1] -> maps to 001 pattern, etc.
             
             state[i][j] = rule_arr[left_cell][curr_cell][right_cell] 
             
-            dead_count += int(state[i][j][0] / live_0) ^ 1 #add 1 if dead, else add 0
+            dead_count += int(state[i][j][0] / live_color[0]) ^ 1 #add 1 if dead, else add 0
         
     return state
-
-# for testing
-"""
-def main():
-    gen_multiple_cellauto()
-
-
-if __name__ == '__main__':
-    main()
-"""
 
 
 
