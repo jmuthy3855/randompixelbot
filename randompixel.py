@@ -35,7 +35,7 @@ def random_colors(state):
     for i in range(0, rows):
        for j in range(0, cols):
            if state[i][j][0] != 0:
-                state[i][j] = np.random.randint(0,255,3)
+                state[i][j] = np.random.randint(0,255,3) # try doing this branchless! might not help though...
 
     return state
 

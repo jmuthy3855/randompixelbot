@@ -28,3 +28,12 @@ def tweet(tweepy_api):
     media_id = [img.media_id] #id list associated with media(image(s))
     tweepy_api.update_status(status=(''), media_ids=media_id)
     print("tweeted random cell auto")
+
+
+def main():
+    api = authenticate()
+    tweet(api)
+
+
+if __name__ == '__main__':
+    main()
