@@ -20,13 +20,15 @@ def authenticate():
 
 # tweet out a random cell auto
 def tweet(tweepy_api):
-    img_filename = PHOTO_LOCATION 
+    img_filename = PHOTO_LOCATION
+    tweet_status = '' 
 
-    randompixel.gen_random_cellauto(img_filename)
+    if randompixel.gen_random_cellauto(img_filename):
+        tweet_status = 'Flipped!'
 
     img = tweepy_api.media_upload(img_filename) #creates twitter object for image
     media_id = [img.media_id] #id list associated with media(image(s))
-    tweepy_api.update_status(status=(''), media_ids=media_id)
+    tweepy_api.update_status(status=(tweet_status), media_ids=media_id)
     print("tweeted random cell auto")
 
 

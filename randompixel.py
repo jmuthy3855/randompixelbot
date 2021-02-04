@@ -6,18 +6,28 @@ dead_count = 0 # used in boring_count, probably can change to a non-global varia
 rows = 800
 cols = 800
 
-# generates the random cell auto and saves it in the specified save file, which should be a valid photo file type
+# generates the random cell auto and saves it in the specified save file, which should be a valid photo file type. returns a boolean representing whether the image was flipped or not(rotated by 180)
 def gen_random_cellauto(save_file):
         live_color = np.random.randint(30,255,3)
         imarray = img_gen(live_color, rows, cols)
+        reversed = False
          
         while is_boring(imarray):
             print("pattern is boring, regenerating")
             imarray = img_gen(live_color, rows, cols)  
 
         im = Image.fromarray(imarray.astype('uint8')).convert('RGBA')
+
+        if np.random.randint(0,2) == 0:
+            im = im.rotate(180)
+            print("reversed")
+            reversed = True
+        
         im.save(save_file)
         print("done with generating random pixels, saved in {}".format(save_file))
+        return reversed
+
+
 
 # generates 5 random cellautos, saves them into different files
 def gen_multiple_cellauto():
@@ -29,9 +39,6 @@ def gen_multiple_cellauto():
 
 # randomly colors the live cells after they are generated, but looks like a mess in some cases
 def random_colors(state):
-    rows = len(state)
-    cols = len(state[0])
-
     for i in range(0, rows):
        for j in range(0, cols):
            if state[i][j][0] != 0:
